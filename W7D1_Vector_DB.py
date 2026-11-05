@@ -209,6 +209,8 @@ def apply_threshold(query_results, threshold):
             print(f"   السياق المسموح: {first['document']}")
         else:
             print("   السياق المسموح: لا يوجد — لازم النظام يمتنع عن استخدام النتائج دي")
+
+
 def print_comparison(query_results, q2_filtered):
     print("\n=== مقارنة أول نتيجة لكل سؤال ===")
     print(f"{'Query':<10} {'Topic':<15} {'Distance':<15} Expected")
