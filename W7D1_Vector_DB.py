@@ -104,7 +104,7 @@ def create_collection():
 
 
 def print_query_results(title, result):
-    print(f"\\n{title}")
+    print(f"\n{title}")
     print("-" * 90)
 
     for index, (document_id, document, metadata, distance) in enumerate(
@@ -160,14 +160,14 @@ def analyze_threshold(query_results):
     out_of_scope_distance = get_first_result(query_results["Q5"])["distance"]
     highest_relevant_distance = max(relevant_distances)
 
-    print("\\n=== مقارنة المسافات ===")
+    print("\n=== مقارنة المسافات ===")
     for query_id, distance in zip(("Q1", "Q2", "Q3", "Q4"), relevant_distances):
         print(f"أقرب مسافة في {query_id}: {distance:.6f}")
 
     print(f"أبعد مسافة بين الأسئلة المرتبطة: {highest_relevant_distance:.6f}")
     print(f"أقرب مسافة في Q5: {out_of_scope_distance:.6f}")
 
-    print("\\n=== Threshold Analysis ===")
+    print("\n=== Threshold Analysis ===")
     if out_of_scope_distance > highest_relevant_distance:
         threshold = (highest_relevant_distance + out_of_scope_distance) / 2
         print(f"Threshold المقترح من التجربة: {threshold:.6f}")
@@ -183,7 +183,7 @@ def analyze_threshold(query_results):
 
 
 def print_comparison(query_results, q2_filtered):
-    print("\\n=== مقارنة أول نتيجة لكل سؤال ===")
+    print("\n=== مقارنة أول نتيجة لكل سؤال ===")
     print(f"{'Query':<10} {'Topic':<15} {'Distance':<15} Expected")
     print("-" * 60)
 
@@ -203,7 +203,7 @@ def print_comparison(query_results, q2_filtered):
     q2_unfiltered = get_first_result(query_results["Q2"])
     q2_filtered_first = get_first_result(q2_filtered)
 
-    print("\\n=== Q2: بدون فلتر مقابل فلتر fitness ===")
+    print("\n=== Q2: بدون فلتر مقابل فلتر fitness ===")
     print(
         f"بدون فلتر: {q2_unfiltered['topic']} | "
         f"{q2_unfiltered['document']} | {q2_unfiltered['distance']:.6f}"
@@ -225,7 +225,7 @@ def main():
     print_comparison(query_results, q2_filtered)
     analyze_threshold(query_results)
 
-    print("\\n=== ملخص التجربة ===")
+    print("\n=== ملخص التجربة ===")
     print(f"عدد المستندات النهائي: {collection.count()}")
     print("لو العدد 12 بعد تشغيل الملف مرتين يبقى upsert منع تكرار السجلات")
 
