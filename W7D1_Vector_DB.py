@@ -160,14 +160,14 @@ def analyze_threshold(query_results):
     out_of_scope_distance = get_first_result(query_results["Q5"])["distance"]
     highest_relevant_distance = max(relevant_distances)
 
-    print("\\n=== مقارنة المسافات ===")
+    print("\n=== مقارنة المسافات ===")
     for query_id, distance in zip(("Q1", "Q2", "Q3", "Q4"), relevant_distances):
         print(f"أقرب مسافة في {query_id}: {distance:.6f}")
 
     print(f"أبعد مسافة بين الأسئلة المرتبطة: {highest_relevant_distance:.6f}")
     print(f"أقرب مسافة في Q5: {out_of_scope_distance:.6f}")
 
-    print("\\n=== Threshold Analysis ===")
+    print("\n=== Threshold Analysis ===")
     if out_of_scope_distance > highest_relevant_distance:
         threshold = (highest_relevant_distance + out_of_scope_distance) / 2
         print(f"Threshold المقترح من التجربة: {threshold:.6f}")
@@ -189,7 +189,7 @@ def analyze_threshold(query_results):
 
 
 def apply_threshold(query_results, threshold):
-    print("\\n=== Threshold Enforcement — قرار استخدام السياق ===")
+    print("\n=== Threshold Enforcement — قرار استخدام السياق ===")
 
     for item in QUERIES:
         first = get_first_result(query_results[item["id"]])
