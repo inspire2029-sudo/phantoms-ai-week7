@@ -8,14 +8,20 @@ This task builds on the Week 6 work with Embeddings, Cosine Similarity, Euclidea
 
 - W7D1_Vector_DB.py — creates a persistent Chroma database, stores 12 documents, runs five semantic queries, compares filtered and unfiltered results, and updates the measured results in notes.
 - notes.md — documents the experiment, the SQL vs Vector Database comparison, the distance metric, the out-of-scope query, and the measured threshold analysis.
+- requirements.txt — project dependency.
+- .gitignore — keeps the local Chroma database and Python artifacts out of Git.
 
 ## Setup
 
-python -m pip install chromadb
+```bash
+python -m pip install -r requirements.txt
+```
 
 ## Run
 
+```bash
 python W7D1_Vector_DB.py
+```
 
 Run the script twice to verify that the collection still contains 12 documents. The script uses stable IDs and upsert so rerunning it updates the same records instead of inserting duplicates.
 
