@@ -1,3 +1,59 @@
+"""
+PHANTOMS AI — Week 7
+W7D1 — Vector Database باستخدام Chroma
+
+الهدف من التاسك
+في الأسبوع السادس حولت الجمل إلى Embeddings واستخدمت التشابه عشان أبحث عن الجمل الأقرب لسؤال جديد
+في التاسك ده هنستخدم Chroma عشان نخزن المتجهات وندير البحث الدلالي
+
+العلاقة بالتاسكات القديمة
+في الأسبوع التاني اشتغلت على SQL والجداول والعلاقات والاستعلامات زي JOIN
+وفي الأسبوع السادس استخدمت sentence-transformers/all-MiniLM-L6-v2 عشان أحول النصوص إلى Embeddings
+وبعدها حسبت Cosine Similarity وEuclidean Distance وعملت Mini Semantic Search
+هنا Chroma هتدير التخزين والبحث بدل ما أرتب المتجهات بنفسي
+
+الفرق بين SQL Database و Vector Database
+SQL بتنظم البيانات في جداول وصفوف وأعمدة وبتناسب البحث بالشروط والقيم والعلاقات
+Vector Database بتخزن المتجهات ومعاها Metadata وبتبحث عن العناصر الأقرب لمعنى السؤال
+ده مش معناه إن واحدة بديل كامل للتانية لأن كل واحدة ليها استخدام مختلف وممكن النظام يستخدم الاتنين مع بعض
+
+مقياس المسافة
+الـCollection الافتراضية في Chroma بتستخدم l2 في Single Node وده Squared Euclidean Distance
+كل ما المسافة تقل النتيجة تكون أقرب حسب المقياس
+المصدر الرسمي https://docs.trychroma.com/docs/collections/configure
+
+ليه Q5 مهم
+Q5 بيسأل عن إطلاق صاروخ للمريخ بينما البيانات الموجودة عن البرمجة واللياقة والطبخ فقط
+Vector Search بيرجع أقرب نتائج موجودة حتى لو السؤال بعيد عن محتوى قاعدة البيانات
+وجود نتيجة في أول الترتيب مش دليل إن فيه معلومة مناسبة للإجابة
+في أنظمة RAG لازم نراجع مدى قرب النتائج قبل ما نبعت السياق للموديل
+لو المسافة كبيرة أو مفيش دليل كفاية ممكن النظام يمتنع عن استخدام النتيجة بدل ما يدي إجابة مبنية على سياق غير مرتبط
+
+Threshold
+مش هنختار Threshold من رقم منتشر لأن المسافات بتختلف حسب موديل Embeddings ومقياس المسافة والبيانات
+هنقارن أقرب مسافة في Q5 بأقرب المسافات للأسئلة المرتبطة من Q1 إلى Q4
+لو ظهر فاصل واضح هنقترح قيمة في منتصف الفاصل
+لو مظهرش فاصل واضح هنسجل إن التجربة مش كفاية لاختيار Threshold موثوق
+الأرقام الفعلية بتظهر في مخرجات التشغيل تحت
+
+منع التكرار
+بنستخدم upsert ومعرفات ثابتة عشان تشغيل الملف أكتر من مرة يحدث نفس السجلات بدل ما يكررها
+المفروض عدد المستندات يفضل 12 بعد كل تشغيل
+
+التشغيل
+python -m pip install chromadb
+python W7D1_Vector_DB.py
+
+المصادر
+Chroma Getting Started: https://docs.trychroma.com/docs/overview/getting-started
+Chroma Guides: https://docs.trychroma.com/guides
+Chroma Collection Configuration: https://docs.trychroma.com/docs/collections/configure
+Cyclr Vector Databases: https://cyclr.com/resources/ai/understanding-vector-databases-a-deep-dive-with-pinecone
+
+ملاحظة
+النتائج والمسافات هنا بتتولد من التشغيل الفعلي ومش مكتوبة مسبقا
+"""
+
 from pathlib import Path
 
 import chromadb
@@ -5,7 +61,6 @@ import chromadb
 
 DB_PATH = Path(__file__).parent / "chroma_db"
 COLLECTION_NAME = "phantoms_knowledge"
-NOTES_FILE = Path(__file__).parent / "notes.md"
 
 DOCUMENTS = [
     {"id": "programming_01", "topic": "programming", "text": "Python lists are mutable sequences that can store items of different types."},
@@ -30,18 +85,15 @@ QUERIES = [
     {"id": "Q5", "text": "How do I deploy a rocket to Mars?", "expected_topic": None},
 ]
 
-RESULTS_START = "<!-- RESULTS_START -->"
-RESULTS_END = "<!-- RESULTS_END -->"
-
 
 def create_collection():
     # بنفتح قاعدة البيانات الدائمة عشان البيانات تفضل موجودة بعد ما البرنامج يقفل
     client = chromadb.PersistentClient(path=str(DB_PATH))
 
-    # بنستخدم الإعدادات الافتراضية للمقياس من غير ما نفرض مقياس مختلف
+    # بننشئ الـCollection لو مش موجودة وبنستخدم إعدادات Chroma الافتراضية
     collection = client.get_or_create_collection(name=COLLECTION_NAME)
 
-    # بنستخدم upsert عشان تشغيل الملف أكتر من مرة يحدث نفس المعرفات بدل ما يكررها
+    # بنستخدم upsert عشان نفس المعرفات تتحدث بدل ما تتكرر
     collection.upsert(
         ids=[item["id"] for item in DOCUMENTS],
         documents=[item["text"] for item in DOCUMENTS],
@@ -52,7 +104,7 @@ def create_collection():
 
 
 def print_query_results(title, result):
-    print(f"\n{title}")
+    print(f"\\n{title}")
     print("-" * 90)
 
     for index, (document_id, document, metadata, distance) in enumerate(
@@ -72,7 +124,6 @@ def print_query_results(title, result):
 
 def get_first_result(result):
     return {
-        "id": result["ids"][0][0],
         "document": result["documents"][0][0],
         "topic": result["metadatas"][0][0]["topic"],
         "distance": float(result["distances"][0][0]),
@@ -87,7 +138,7 @@ def run_searches(collection):
         query_results[item["id"]] = result
         print_query_results(f"{item['id']} — {item['text']}", result)
 
-    # بنعيد سؤال Q2 مع فلتر المجال عشان نقارن النتيجتين
+    # بنعيد Q2 مع فلتر المجال عشان نقارن النتيجتين
     q2_filtered = collection.query(
         query_texts=[QUERIES[1]["text"]],
         n_results=3,
@@ -98,167 +149,85 @@ def run_searches(collection):
     return query_results, q2_filtered
 
 
-def build_threshold_analysis(query_results):
+def analyze_threshold(query_results):
+    # دي أقرب مسافة لأول نتيجة في الأسئلة اللي ليها مجال متوقع
     relevant_distances = [
         get_first_result(query_results[query_id])["distance"]
         for query_id in ("Q1", "Q2", "Q3", "Q4")
     ]
+
+    # ودي أقرب مسافة للسؤال اللي خارج المجالات الموجودة
     out_of_scope_distance = get_first_result(query_results["Q5"])["distance"]
     highest_relevant_distance = max(relevant_distances)
 
+    print("\\n=== مقارنة المسافات ===")
+    for query_id, distance in zip(("Q1", "Q2", "Q3", "Q4"), relevant_distances):
+        print(f"أقرب مسافة في {query_id}: {distance:.6f}")
+
+    print(f"أبعد مسافة بين الأسئلة المرتبطة: {highest_relevant_distance:.6f}")
+    print(f"أقرب مسافة في Q5: {out_of_scope_distance:.6f}")
+
+    print("\\n=== Threshold Analysis ===")
     if out_of_scope_distance > highest_relevant_distance:
         threshold = (highest_relevant_distance + out_of_scope_distance) / 2
-        threshold_text = (
-            f"المسافة المقترحة من التجربة هي **{threshold:.6f}**. "
-            "القيمة دي منتصف المسافة بين أبعد أقرب نتيجة للأسئلة المرتبطة "
-            "وأقرب نتيجة لسؤال خارج نطاق البيانات."
-        )
-        threshold_rule = (
-            "لو أقل Distance للسؤال أكبر من Threshold المقترح، "
-            "نعتبر إن مفيش نتيجة قريبة كفاية ونمتنع عن تقديم إجابة اعتمادًا على قاعدة البيانات."
+        print(f"Threshold المقترح من التجربة: {threshold:.6f}")
+        print(
+            "لو أقل Distance للسؤال أكبر من Threshold المقترح "
+            "نعتبر إن مفيش نتيجة قريبة كفاية ونمتنع عن استخدام السياق"
         )
     else:
-        threshold = None
-        threshold_text = (
-            "التجربة الحالية ماظهرتش فاصل واضح يسمح باختيار Threshold واحد "
-            "يفصل كل الأسئلة المرتبطة عن السؤال الخارج عن النطاق. "
-            "مينفعش نختار رقم ونقدمه كأنه حد موثوق."
-        )
-        threshold_rule = (
-            "محتاجين بيانات واختبارات أكتر قبل اعتماد Threshold، "
-            "ومينفعش نرفض أو نقبل السؤال اعتمادًا على رقم غير قادر على الفصل."
+        print(
+            "التجربة ماظهرتش فاصل واضح يسمح باختيار Threshold موثوق "
+            "محتاجين أسئلة وبيانات أكتر قبل اعتماد حد فاصل"
         )
 
-    return {
-        "relevant_distances": relevant_distances,
-        "highest_relevant_distance": highest_relevant_distance,
-        "out_of_scope_distance": out_of_scope_distance,
-        "threshold": threshold,
-        "threshold_text": threshold_text,
-        "threshold_rule": threshold_rule,
-    }
 
-
-def build_results_section(collection, query_results, q2_filtered, analysis):
-    lines = [
-        RESULTS_START,
-        "",
-        "## نتائج التشغيل الفعلية",
-        "",
-        f"- عدد المستندات داخل الـCollection بعد التشغيل: **{collection.count()}**",
-        "- عدد المستندات المطلوبة: **12**",
-        "",
-        "### أقرب نتيجة لكل سؤال",
-        "",
-        "| السؤال | أول نتيجة | المجال | المسافة | النتيجة متوافقة مع المجال المتوقع؟ |",
-        "|---|---|---|---:|---|",
-    ]
+def print_comparison(query_results, q2_filtered):
+    print("\\n=== مقارنة أول نتيجة لكل سؤال ===")
+    print(f"{'Query':<10} {'Topic':<15} {'Distance':<15} Expected")
+    print("-" * 60)
 
     for item in QUERIES:
         first = get_first_result(query_results[item["id"]])
-        expected = item["expected_topic"]
-        if expected is None:
-            correctness = "سؤال خارج المجالات الموجودة"
-        else:
-            correctness = "نعم" if first["topic"] == expected else "لا"
-
-        lines.append(
-            f"| {item['id']} | {first['document']} | {first['topic']} | "
-            f"{first['distance']:.6f} | {correctness} |"
+        expected = item["expected_topic"] or "out of scope"
+        correctness = (
+            "خارج النطاق"
+            if item["expected_topic"] is None
+            else ("صحيح" if first["topic"] == item["expected_topic"] else "غير متوافق")
+        )
+        print(
+            f"{item['id']:<10} {first['topic']:<15} "
+            f"{first['distance']:<15.6f} {expected} — {correctness}"
         )
 
-    lines.extend([
-        "",
-        "### مقارنة Q2 قبل وبعد الفلتر",
-        "",
-        "| الحالة | أول نتيجة | المجال | المسافة |",
-        "|---|---|---|---:|",
-    ])
-
-    q2_unfiltered_first = get_first_result(query_results["Q2"])
+    q2_unfiltered = get_first_result(query_results["Q2"])
     q2_filtered_first = get_first_result(q2_filtered)
-    lines.append(
-        f"| من غير فلتر | {q2_unfiltered_first['document']} | "
-        f"{q2_unfiltered_first['topic']} | {q2_unfiltered_first['distance']:.6f} |"
+
+    print("\\n=== Q2: بدون فلتر مقابل فلتر fitness ===")
+    print(
+        f"بدون فلتر: {q2_unfiltered['topic']} | "
+        f"{q2_unfiltered['document']} | {q2_unfiltered['distance']:.6f}"
     )
-    lines.append(
-        f"| مع فلتر fitness | {q2_filtered_first['document']} | "
-        f"{q2_filtered_first['topic']} | {q2_filtered_first['distance']:.6f} |"
+    print(
+        f"مع الفلتر: {q2_filtered_first['topic']} | "
+        f"{q2_filtered_first['document']} | {q2_filtered_first['distance']:.6f}"
     )
-
-    lines.extend([
-        "",
-        "الفلتر بيقصر البحث على المستندات اللي Metadata بتاعتها فيها "
-        "topic = fitness، لكنه مش بيغير معنى السؤال نفسه.",
-        "",
-        "### مقارنة Q5 بالأسئلة المرتبطة",
-        "",
-        "| القياس | المسافة |",
-        "|---|---:|",
-    ])
-
-    for query_id, distance in zip(("Q1", "Q2", "Q3", "Q4"), analysis["relevant_distances"]):
-        lines.append(f"| أقرب نتيجة في {query_id} | {distance:.6f} |")
-
-    lines.extend([
-        f"| أبعد مسافة لأول نتيجة بين Q1 و Q4 | {analysis['highest_relevant_distance']:.6f} |",
-        f"| أقرب نتيجة في Q5 | {analysis['out_of_scope_distance']:.6f} |",
-        "",
-        analysis["threshold_text"],
-        "",
-        analysis["threshold_rule"],
-        "",
-        "### أقرب 3 نتائج لسؤال Q5",
-        "",
-    ])
-
-    q5 = query_results["Q5"]
-    for index, (document, metadata, distance) in enumerate(
-        zip(q5["documents"][0], q5["metadatas"][0], q5["distances"][0]),
-        start=1,
-    ):
-        lines.append(
-            f"{index}. **{metadata['topic']}** — {document} "
-            f"(Distance: {float(distance):.6f})"
-        )
-
-    lines.extend([
-        "",
-        "### اختبار منع التكرار",
-        "",
-        "البرنامج بيستخدم upsert ومعرفات ثابتة للمستندات. "
-        "شغلي الملف مرة تانية وتأكدي إن عدد المستندات فضل 12 بدل ما يزيد لـ24. "
-        "العدد اللي فوق هو العدد الفعلي بعد التشغيل الحالي.",
-        "",
-        RESULTS_END,
-    ])
-
-    existing = NOTES_FILE.read_text(encoding="utf-8")
-    start = existing.find(RESULTS_START)
-    end = existing.find(RESULTS_END)
-    if start == -1 or end == -1 or end < start:
-        raise RuntimeError("علامات قسم النتائج مش موجودة في notes.md")
-
-    updated = existing[:start] + "\n".join(lines) + existing[end + len(RESULTS_END):]
-    NOTES_FILE.write_text(updated, encoding="utf-8")
 
 
 def main():
     collection = create_collection()
+
     print("تم فتح قاعدة البيانات الدائمة")
     print(f"عدد المستندات بعد upsert: {collection.count()}")
+    print("المفروض العدد يفضل 12 حتى لو شغلنا الملف أكتر من مرة")
 
     query_results, q2_filtered = run_searches(collection)
-    analysis = build_threshold_analysis(query_results)
+    print_comparison(query_results, q2_filtered)
+    analyze_threshold(query_results)
 
-    print("\n=== تحليل Threshold ===")
-    print(analysis["threshold_text"])
-    print(analysis["threshold_rule"])
-
-    build_results_section(collection, query_results, q2_filtered, analysis)
-
-    print("\nتم تحديث النتائج الفعلية داخل notes.md")
-    print("شغلي الملف مرة تانية وتأكدي إن عدد المستندات لسه 12")
+    print("\\n=== ملخص التجربة ===")
+    print(f"عدد المستندات النهائي: {collection.count()}")
+    print("لو العدد 12 بعد تشغيل الملف مرتين يبقى upsert منع تكرار السجلات")
 
 
 if __name__ == "__main__":
