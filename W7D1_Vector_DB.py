@@ -160,28 +160,55 @@ def analyze_threshold(query_results):
     out_of_scope_distance = get_first_result(query_results["Q5"])["distance"]
     highest_relevant_distance = max(relevant_distances)
 
-    print("\n=== مقارنة المسافات ===")
+    print("\\n=== مقارنة المسافات ===")
     for query_id, distance in zip(("Q1", "Q2", "Q3", "Q4"), relevant_distances):
         print(f"أقرب مسافة في {query_id}: {distance:.6f}")
 
     print(f"أبعد مسافة بين الأسئلة المرتبطة: {highest_relevant_distance:.6f}")
     print(f"أقرب مسافة في Q5: {out_of_scope_distance:.6f}")
 
-    print("\n=== Threshold Analysis ===")
+    print("\\n=== Threshold Analysis ===")
     if out_of_scope_distance > highest_relevant_distance:
         threshold = (highest_relevant_distance + out_of_scope_distance) / 2
         print(f"Threshold المقترح من التجربة: {threshold:.6f}")
         print(
-            "لو أقل Distance للسؤال أكبر من Threshold المقترح "
-            "نعتبر إن مفيش نتيجة قريبة كفاية ونمتنع عن استخدام السياق"
+            "هنستخدم الحد ده فعليًا: لو أقل Distance أكبر منه هنرفض "
+            "السياق، ولو أقل منه أو مساوي هنسمح باستخدام أقرب نتيجة"
         )
-    else:
         print(
-            "التجربة ماظهرتش فاصل واضح يسمح باختيار Threshold موثوق "
-            "محتاجين أسئلة وبيانات أكتر قبل اعتماد حد فاصل"
+            "تنبيه: الحد تجريبي ومبني على 4 أسئلة مرتبطة وسؤال واحد خارج النطاق؛ "
+            "لازم يتعاير على بيانات وأسئلة أكتر قبل استخدامه في نظام حقيقي"
         )
+        return threshold
+
+    print(
+        "التجربة ماظهرتش فاصل واضح يسمح باختيار Threshold موثوق؛ "
+        "مش هنعتبر أي نتيجة مقبولة تلقائيًا"
+    )
+    return None
 
 
+def apply_threshold(query_results, threshold):
+    print("\\n=== Threshold Enforcement — قرار استخدام السياق ===")
+
+    for item in QUERIES:
+        first = get_first_result(query_results[item["id"]])
+
+        if threshold is None:
+            decision = "REJECT — مفيش Threshold موثوق، فهنمتنع عن استخدام السياق"
+        elif first["distance"] > threshold:
+            decision = "REJECT — أقرب نتيجة أبعد من Threshold؛ السؤال خارج نطاق البيانات"
+        else:
+            decision = "ACCEPT — أقرب نتيجة داخل Threshold ومسموح باستخدامها كسياق"
+
+        print(
+            f"{item['id']}: Distance={first['distance']:.6f} | "
+            f"{decision}"
+        )
+        if decision.startswith("ACCEPT"):
+            print(f"   السياق المسموح: {first['document']}")
+        else:
+            print("   السياق المسموح: لا يوجد — لازم النظام يمتنع عن استخدام النتائج دي")
 def print_comparison(query_results, q2_filtered):
     print("\n=== مقارنة أول نتيجة لكل سؤال ===")
     print(f"{'Query':<10} {'Topic':<15} {'Distance':<15} Expected")
@@ -223,7 +250,8 @@ def main():
 
     query_results, q2_filtered = run_searches(collection)
     print_comparison(query_results, q2_filtered)
-    analyze_threshold(query_results)
+    threshold = analyze_threshold(query_results)
+    apply_threshold(query_results, threshold)
 
     print("\n=== ملخص التجربة ===")
     print(f"عدد المستندات النهائي: {collection.count()}")
