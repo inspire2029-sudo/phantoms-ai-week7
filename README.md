@@ -63,4 +63,4 @@ The complete Day 2 deliverable is consolidated into one Markdown file:
 
 The standalone `W7D2_Chunking_Experiment.py` file was removed. To run the experiment, extract the Python code block from the Markdown deliverable into a temporary local file named `W7D2_Chunking_Experiment.py`, place the source PDF at `data/source_document.pdf`, install `requirements.txt`, and run the script.
 
-**Status:** implementation and documentation are consolidated. Measured ChromaDB results must be generated locally from the source PDF before selecting a winning configuration. Do not substitute estimated results.
+**Status:** W7D2 documentation is finalized. The report records the completed 30-run comparison (10 questions × 3 configurations), measured evidence-coverage results, and the interpretation/limitations. Q9/Q10 remain separate source-absence checks and are not counted as retrieval successes or failures. The Python implementation is embedded in the Markdown deliverable; the source PDF, CSV, and local ChromaDB files remain local and are not committed.
