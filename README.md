@@ -57,32 +57,10 @@ The script writes `results/comparison_results.csv` and updates this README with 
 
 ## W7D2 — Chunking and Retrieval Quality Benchmark
 
-Today's experiment is kept in a separate script so the existing Day 1 work remains untouched.
+The complete Day 2 deliverable is consolidated into one Markdown file:
 
-### Script
+- [W7D2_Vector_DB_Chunking.md](W7D2_Vector_DB_Chunking.md) — Egyptian Arabic first-person explanation, source document, 10 questions, three chunking configurations, metadata design, result-table template, analysis criteria, and the complete Python implementation in a dedicated code section.
 
-- `W7D2_Chunking_Experiment.py` — builds three Chroma collections, retrieves Top 3 for the same 10 Arabic questions, checks manually defined evidence anchors, and validates source metadata.
+The standalone `W7D2_Chunking_Experiment.py` file was removed. To run the experiment, extract the Python code block from the Markdown deliverable into a temporary local file named `W7D2_Chunking_Experiment.py`, place the source PDF at `data/source_document.pdf`, install `requirements.txt`, and run the script.
 
-### Fixed experiment variables
-
-| Configuration | Chunk size | Overlap |
-|---|---:|---:|
-| small_180_30 | 180 characters | 30 characters |
-| medium_700_120 | 700 characters | 120 characters |
-| large_1600_250 | 1600 characters | 250 characters |
-
-The source PDF must be available locally at `data/source_document.pdf`. It is not stored in this repository.
-
-### Run
-
-```bash
-cd ~/Projects/phantoms-ai-week7
-python W7D2_Chunking_Experiment.py
-```
-
-### Generated deliverables
-
-- `results/W7D2_Chunking_Experiment.md` — questions, reference answers, the 10 × 3 comparison table, measured winner, worst failure, concepts, and metadata verification.
-- `results/W7D2_chunking_comparison.csv` — all 30 query/configuration rows with Top 3 pages, distances, chunk IDs, and source metadata.
-
-**Status:** implementation added; measured results remain pending the local run against the source PDF. Never fill the comparison with estimated or invented retrieval results.
+**Status:** implementation and documentation are consolidated. Measured ChromaDB results must be generated locally from the source PDF before selecting a winning configuration. Do not substitute estimated results.
