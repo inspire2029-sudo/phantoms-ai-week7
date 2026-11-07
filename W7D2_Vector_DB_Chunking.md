@@ -2,7 +2,7 @@
 ## تجربة Chunking وتأثيره على جودة Retrieval في RAG
 
 > **نوع المهمة:** تجربة عملية ومقارنة استرجاع  
-> **المستند المستخدم:** `SGDS_SWARM_Engineering_Report_Civil_Edition.pdf`  
+> **المستند المستخدم:** `SGDS_SWARM_Engineering_Report_Civil_Edition(4) (1).pdf`  
 > **عدد صفحات المستند المذكور في بيانات المشروع:** 53 صفحة  
 > **قاعدة البيانات:** ChromaDB  
 > **نموذج التضمين:** `intfloat/multilingual-e5-small`  
@@ -45,7 +45,7 @@
 
 ## 2. اختيار المستند
 
-اخترت تقرير `SGDS_SWARM_Engineering_Report_Civil_Edition.pdf` لأنه مستند هندسي حقيقي ومتعدد الأقسام، وفيه معلومات عن معمارية النظام، والعتاد، والذكاء الاصطناعي، وإدارة البيانات، والاتصالات، والأمن، والسلامة، وخطة التنفيذ.
+اخترت تقرير `SGDS_SWARM_Engineering_Report_Civil_Edition(4) (1).pdf` لأنه مستند هندسي حقيقي ومتعدد الأقسام، وفيه معلومات عن معمارية النظام، والعتاد، والذكاء الاصطناعي، وإدارة البيانات، والاتصالات، والأمن، والسلامة، وخطة التنفيذ.
 
 اخترته تحديدًا لأن فيه أسئلة محتاجة ربط أكتر من معلومة، مش مجرد البحث عن كلمة موجودة في فقرة واحدة. وده مناسب لاختبار هل الـ Chunking بيحافظ على السياق ولا بيفصل أجزاء الإجابة عن بعضها.
 
@@ -126,7 +126,7 @@
 
 | اسم الحقل | مثال | استخدامه |
 |---|---|---|
-| `source_file` | `SGDS_SWARM_Engineering_Report_Civil_Edition.pdf` | اسم ملف المصدر |
+| `source_file` | `SGDS_SWARM_Engineering_Report_Civil_Edition(4) (1).pdf` | اسم ملف المصدر |
 | `page_number` | `14` | رقم صفحة الـ PDF |
 | `chunk_index` | `2` | ترتيب الجزء داخل الصفحة |
 | `chunk_size_chars` | `700` | حجم الجزء بالحروف |
@@ -232,7 +232,7 @@ PDF = ROOT / "data" / "source_document.pdf"
 DB = ROOT / "chroma_db" / "w7d2_chunking"
 OUT = ROOT / "results"
 CSV_FILE = OUT / "W7D2_chunking_comparison.csv"
-SOURCE = "SGDS_SWARM_Engineering_Report_Civil_Edition.pdf"
+SOURCE = "SGDS_SWARM_Engineering_Report_Civil_Edition(4) (1).pdf"
 MODEL = "intfloat/multilingual-e5-small"
 TOP_K = 3
 
