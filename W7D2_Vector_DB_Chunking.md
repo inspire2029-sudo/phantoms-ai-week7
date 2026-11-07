@@ -5,7 +5,7 @@
 > **المستند المستخدم:** `SGDS_SWARM_Engineering_Report_Civil_Edition(4) (1).pdf`  
 > **عدد صفحات المستند المذكور في بيانات المشروع:** 53 صفحة  
 > **قاعدة البيانات:** ChromaDB  
-> **نموذج التضمين:** `intfloat/multilingual-e5-small`  
+> **نموذج التضمين:** `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`  
 > **عدد الأسئلة:** 10 أسئلة × 3 إعدادات = 30 عملية Retrieval
 
 ---
@@ -143,64 +143,82 @@
 2. التأكد إن المستند 5 صفحات على الأقل وإن فيه 5 صفحات على الأقل نصها قابل للاستخراج.
 3. تقسيم كل صفحة حسب الإعداد الحالي، مع إضافة الـ Metadata لكل Chunk.
 4. إنشاء Collection مستقلة في ChromaDB لكل إعداد.
-5. إنشاء Embeddings للنصوص باستخدام `intfloat/multilingual-e5-small`.
+5. إنشاء Embeddings للنصوص باستخدام `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`.
 6. تخزين الـ Embeddings والنصوص والـ Metadata في ChromaDB باستخدام Cosine distance.
 7. تحويل كل سؤال إلى Embedding واسترجاع أعلى 3 نتائج.
 8. مقارنة النتائج بمواضع الدليل المرجعية المحددة لكل سؤال.
 9. تسجيل ترتيب ظهور الدليل، وصفحات النتائج الثلاث، وقيم المسافة، ومعرفات الـ Chunks، والتحقق من الـ Metadata.
 10. حفظ الـ 30 تجربة في ملف CSV مساعد للتحليل والمراجعة.
 
-## 8. جدول النتائج
+## 8. النتائج الفعلية
 
-**حالة التنفيذ الحالية:** جدول القياسات الفعلية لسه محتاج يتملأ بعد تشغيل السكربت على ملف الـ PDF في البيئة المحلية. مش هحط أرقام تقديرية أو أنقل نتائج قديمة اتقاست بطريقة مختلفة؛ لأن المطلوب هنا مقارنة باستخدام ChromaDB وDense Embeddings.
+تم تنفيذ المقارنة بالفعل على المستند المحدد، والنتائج التالية هي ناتج التشغيل المسجل للتجربة. **لم تتم إعادة تشغيل التجربة أثناء إغلاق التوثيق**؛ تم توثيق القياسات الموجودة كما هي.
 
-الرموز اللي هستخدمها بعد التشغيل:
+### ملخص المقارنة
 
-- **YES:** كل مجموعات الدليل المطلوبة للسؤال ظهرت في Top 3.
-- **PARTIAL:** جزء من الدليل ظهر، لكن مش كل الأدلة المطلوبة.
-- **NO:** ولا مجموعة دليل مطلوبة ظهرت في Top 3.
-- **NOT_IN_SOURCE:** السؤال إجابته غير موجودة في المستند أصلًا.
-- **Metadata OK:** كل نتيجة مسترجعة فيها اسم الملف ورقم صفحة صحيحين.
+| الإعداد | عدد الـ Chunks | الأدلة المسترجعة من 78 | Micro Evidence Coverage | متوسط تغطية السؤال | أسئلة مكتملة | جزئية | فاشلة |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Small 180/30 | 429 | 22/78 | 28.2% | 31.1% | 1/8 | 5/8 | 2/8 |
+| Medium 700/120 | 120 | 42/78 | 53.8% | 51.5% | 3/8 | 2/8 | 3/8 |
+| Large 1600/250 | 62 | 43/78 | 55.1% | 55.8% | 4/8 | 1/8 | 3/8 |
+
+تمثل **Micro Evidence Coverage** نسبة كل الـ Anchors التي ظهرت في Top 3 من إجمالي 78 Anchor. أما **متوسط تغطية السؤال** فهو متوسط نسبة الأدلة المسترجعة داخل كل سؤال على حدة؛ لذلك قد يختلف عن النسبة الإجمالية.
+
+### تغطية الأدلة لكل سؤال
+
+كل قيمة تمثل عدد الـ Anchors التي ظهرت في Top 3 من إجمالي Anchors السؤال:
 
 | السؤال | Small 180/30 | Medium 700/120 | Large 1600/250 |
-|---|---|---|---|
-| Q1 | بانتظار التشغيل | بانتظار التشغيل | بانتظار التشغيل |
-| Q2 | بانتظار التشغيل | بانتظار التشغيل | بانتظار التشغيل |
-| Q3 | بانتظار التشغيل | بانتظار التشغيل | بانتظار التشغيل |
-| Q4 | بانتظار التشغيل | بانتظار التشغيل | بانتظار التشغيل |
-| Q5 | بانتظار التشغيل | بانتظار التشغيل | بانتظار التشغيل |
-| Q6 | بانتظار التشغيل | بانتظار التشغيل | بانتظار التشغيل |
-| Q7 | بانتظار التشغيل | بانتظار التشغيل | بانتظار التشغيل |
-| Q8 | بانتظار التشغيل | بانتظار التشغيل | بانتظار التشغيل |
-| Q9 | NOT_IN_SOURCE | NOT_IN_SOURCE | NOT_IN_SOURCE |
-| Q10 | NOT_IN_SOURCE | NOT_IN_SOURCE | NOT_IN_SOURCE |
+|---|---:|---:|---:|
+| Q1 | 0/6 | 0/6 | 6/6 |
+| Q2 | 2/12 | 10/12 | 0/12 |
+| Q3 | 6/13 | 13/13 | 6/13 |
+| Q4 | 0/7 | 2/7 | 0/7 |
+| Q5 | 3/9 | 0/9 | 0/9 |
+| Q6 | 5/13 | 13/13 | 13/13 |
+| Q7 | 4/4 | 4/4 | 4/4 |
+| Q8 | 2/14 | 0/14 | 14/14 |
 
-بعد التشغيل، هراجع لكل خلية: هل الدليل ظهر؟ ظهر في أنهي ترتيب؟ وإيه صفحات الـ Top 3؟ وهل الـ Metadata سليمة؟ تفاصيل النتائج ومقتطفات النصوص والمسافات هتكون في ملف CSV اللي السكربت بيطلعه للمراجعة.
+### التحقق من الـ Metadata
+
+- عدد صفوف المقارنة: **30/30** (10 أسئلة × 3 إعدادات).
+- عدد نتائج Top 3 التي تم التحقق من بياناتها: **90/90**.
+- التحقق شمل اسم ملف المصدر ورقم صفحة صحيحًا موجبًا في كل نتيجة.
+
+### Q9 وQ10
+
+السكربت يصنف السؤالين كـ `ABSENCE_CHECK` ويستبعدهما من مقام تغطية الأدلة؛ لأنهما لا يملكان Anchors إيجابية قابلة للبحث. عدم ظهور إجابة في Top 3 **ليس وحده إثباتًا** أن المعلومة غير موجودة في كامل المستند. لذلك يظل الحكم على غياب قيمة mAP الميدانية وعدد الرحلات ومتوسط زمن الطيران حكمًا مبنيًا على مراجعة المصدر، وليس على نتيجة الاسترجاع وحدها.
 
 ## 9. تحليل النتائج والاستنتاج
 
-مش هحدد الإعداد الأفضل قبل ما أشغّل الـ 30 عملية Retrieval وأراجع النتائج. معيار الاختيار الأساسي عندي هو اكتمال الدليل في Top 3، وبعده نسبة تغطية الأدلة، وبعدها ترتيب أول دليل ظهر.
+### ماذا تقول النتائج؟
 
-### إزاي هحدد أفضل إعداد؟
+1. **Large حقق أعلى تغطية إجمالية بفارق محدود:** استرجع 43 من 78 Anchor (55.1%) مقابل 42 من 78 (53.8%) لـ Medium. الفارق Anchor واحد فقط؛ لذلك لا يكفي وحده لإثبات تفوق عام أو حاسم.
+2. **Large حقق أكبر عدد من الأسئلة المكتملة:** 4 من 8، مقابل 3 من 8 لـ Medium و1 من 8 لـ Small.
+3. **Medium كان أقوى في أسئلة محددة:** غطى Q2 بمقدار 10/12 وQ3 وQ6 بالكامل. لكنه لم يسترجع أي دليل من Q1 وQ5 وQ8.
+4. **Large كان قويًا في الأسئلة التي تجمّع دليلها داخل مقطع كبير:** أكمل Q1 وQ6 وQ7 وQ8، لكنه أخفق في Q2 وQ4 وQ5، وغطى Q3 جزئيًا.
+5. **Small كان الأضعف إجمالًا:** 22/78 Anchor فقط، مع سؤال مكتمل واحد. صغر القطعة قد يفصل أجزاء الدليل أو يجعل كل جزء أقل قدرة على تمثيل سياقه.
 
-هقارن بين:
+### هل يوجد إعداد فائز؟
 
-- عدد الأسئلة المكتملة من أصل 8 أسئلة قابلة للإجابة.
-- عدد الأسئلة اللي ظهر فيها جزء من الدليل بس.
-- عدد الأسئلة اللي فشل الاسترجاع في إظهار دليلها.
-- متوسط تغطية مجموعات الأدلة المطلوبة.
-- متوسط ترتيب أول دليل ظهر.
-- سلامة الـ Metadata في كل النتائج.
+لو استخدمنا أرقام هذا الـ Benchmark فقط، فإن Large يتصدر بفارق ضئيل في التغطية الإجمالية وعدد الأسئلة المكتملة. لكن الاستنتاج الأدق هو أن **لا يوجد حجم Chunk واحد كان الأفضل لكل الأسئلة**؛ أداء كل إعداد اختلف باختلاف مكان الدليل وطبيعة السؤال وتوزيعه داخل المستند.
 
-### إيه اللي هاعتبره أسوأ فشل؟
+- Large مناسب في هذه العينة للأسئلة التي يستفيد استرجاعها من سياق أوسع.
+- Medium قدم توازنًا قويًا، وكان الأفضل في استرجاع أدلة Q2 وQ3، وشارك Large في إكمال Q6 وQ7.
+- Small لم يحقق نتائج منافسة في هذه المقارنة.
 
-أسوأ فشل مش بالضرورة السؤال اللي مفيش له نتيجة قريبة؛ ممكن يكون السؤال اللي إجابته موزعة على أكتر من موضع، والنظام يرجّع جزء واحد بس ويخلّي الجزء التاني بره Top 3. ده ممكن يخلي نموذج RAG يكوّن إجابة ناقصة أو يربط معلومات من غير دليل كافي.
+بالتالي، لا أتعامل مع فارق 1 Anchor بين Large وMedium على أنه قاعدة عامة. الاختيار النهائي في نظام إنتاجي يحتاج Benchmark أوسع بأسئلة ومستندات أكثر، وقد يستفيد من Chunking يحافظ على حدود الفقرات والعناوين بدل الاعتماد على عدد الحروف فقط.
 
-### ليه Q9 وQ10 مهمين؟
+### تفسير الفشل
 
-لأن ChromaDB هترجع أقرب نتائج حتى لو مفيش إجابة فعلية في المستند. وجود نتائج متشابهة في المعنى مش معناه إن المصدر جاوب على السؤال.
+- فشل Large في Q2 رغم نجاح Medium يوضح أن القطعة الأكبر ليست دائمًا أفضل؛ قد تجمع موضوعات متعددة فتضعف ملاءمة المقطع للسؤال.
+- فشل Medium في Q8 مقابل نجاح Large الكامل يوضح أن بعض قوائم التسليمات قد تحتاج سياقًا أطول حتى تظهر عناصرها معًا.
+- Q4 ظل ضعيفًا في الإعدادات الثلاثة؛ Medium استرجع 2/7 فقط، بينما لم يظهر الدليل المطلوب في Top 3 مع Small وLarge.
+- نجاح الإعدادات الثلاثة في Q7 (4/4) يشير إلى أن الدليل في هذا السؤال كان قابلًا للاسترجاع عبر الأحجام الثلاثة.
 
-بالنسبة للسؤالين دول، السلوك الصحيح من نظام RAG هو إنه يوضح إن المعلومة مش موجودة في المصدر، بدل ما يخمّن قيمة mAP أو عدد رحلات أو متوسط زمن طيران.
+### ما الذي تقيسه الأرقام وما الذي لا تقيسه؟
+
+هذه التجربة تقيس **استرجاع Anchors مرجعية محددة داخل أعلى 3 نتائج**. لا تقيس دقة إجابة مولد لغوي، ولا صحة الاستشهادات في إجابة نهائية، ولا معدل الهلوسة، ولا جودة RAG من البداية للنهاية. كما أن التغطية تتأثر باختيار الـ Anchors والصفحات المرجعية؛ وأي خطأ في Ground Truth قد يؤثر في التقييم.
 
 ## 10. حدود التجربة
 
@@ -233,7 +251,7 @@ DB = ROOT / "chroma_db" / "w7d2_chunking"
 OUT = ROOT / "results"
 CSV_FILE = OUT / "W7D2_chunking_comparison.csv"
 SOURCE = "SGDS_SWARM_Engineering_Report_Civil_Edition(4) (1).pdf"
-MODEL = "intfloat/multilingual-e5-small"
+MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 TOP_K = 3
 
 CONFIGS = [
@@ -245,36 +263,120 @@ CONFIGS = [
 QUESTIONS = [
     {"id": "Q1", "question": "ما الدور الذي تمثله كل طائرة داخل منظومة SGDS SWARM؟",
      "answer": "كل طائرة تمثل عقدة استشعار ومعالجة تنفذ الطيران وتستخلص المعلومات وتقيّم حالتها التشغيلية وتتبادل بيانات مختصرة وتتخذ قرارات محلية ضمن السياسات المحددة.",
-     "evidence": [{"page": 3, "anchors": ["عقدة استشعار ومعالجة", "استخلاص المعلومات", "قرارات محلية"]}]},
+     "evidence": [
+         {"page": 3, "anchor": "عقدة استشعار ومعالجة"},
+         {"page": 3, "anchor": "تنفيذ الطيران"},
+         {"page": 3, "anchor": "استخلاص المعلومات"},
+         {"page": 3, "anchor": "تقييم الحالة التشغيلية"},
+         {"page": 3, "anchor": "تبادل بيانات مختصرة"},
+         {"page": 3, "anchor": "اتخاذ قرارات محلية"},
+     ]},
     {"id": "Q2", "question": "ما الطبقات الوظيفية العشر للمنظومة وما الطبقتان العرضيتان اللتان تغطيانها؟",
-     "answer": "الطبقات الوظيفية هي Airframe / Power / Mechanics وSensors / Payload وFlight Control وNavigation / Localization وCommunications وData Management وAI / Computer Vision وEvent & Decision Engine وFleet Management وUser Interface / Command Center. والطبقتان العرضيتان هما Cybersecurity وSafety / Reliability.",
-     "evidence": [{"page": 8, "anchors": ["عشر طبقات وظيفية", "User Interface / Command Center", "Airframe / Power / Mechanics"]},
-                  {"page": 9, "anchors": ["Cybersecurity", "Safety / Reliability"]}]},
+     "answer": "الطبقات الوظيفية العشر هي Airframe / Power / Mechanics وSensors & Payload وFlight Control وNavigation & Localization وCommunications وData Management وAI / Computer Vision وEvent & Decision Engine وFleet Management وUser Interface / Command Center. والطبقتان العرضيتان هما Cybersecurity وSafety / Reliability.",
+     "evidence": [
+         {"page": 8, "anchor": "Airframe / Power / Mechanics"},
+         {"page": 8, "anchor": "Sensors & Payload"},
+         {"page": 8, "anchor": "Flight Control"},
+         {"page": 8, "anchor": "Navigation & Localization"},
+         {"page": 8, "anchor": "Communications"},
+         {"page": 8, "anchor": "Data Management"},
+         {"page": 8, "anchor": "AI / Computer Vision"},
+         {"page": 8, "anchor": "Event & Decision Engine"},
+         {"page": 8, "anchor": "Fleet Management"},
+         {"page": 8, "anchor": "User Interface / Command Center"},
+         {"page": 9, "anchor": "Cybersecurity"},
+         {"page": 9, "anchor": "Safety / Reliability"},
+     ]},
     {"id": "Q3", "question": "لماذا لا يعتمد التقرير على عتبة بطارية ثابتة وما المدخلات المستخدمة لتقدير زمن المهمة الآمن؟",
-     "answer": "لأن نسبة البطارية لا تمثل الاحتياطي نفسه في كل الظروف إذ يتغير الاستهلاك حسب الحمولة والطقس والمسافة وحالة البطارية. ويعتمد التقدير على الطاقة المتبقية وطاقة العودة واحتياطي السلامة وتأثير الطقس وصحة البطارية واستهلاك الحمولة.",
-     "evidence": [{"page": 13, "anchors": ["لا تمثل مقدار الاحتياطي نفسه", "يتغير الاستهلاك المتوقع", "Energy-Aware Mission Management"]},
-                  {"page": 14, "anchors": ["Remaining Energy", "Return Energy", "Safety Reserve", "Payload Consumption"]}]},
+     "answer": "لأن نسبة البطارية لا تمثل الاحتياطي نفسه في كل الظروف؛ ويتغير الاستهلاك حسب الحمولة والطقس والمسافة وحالة البطارية. ويعتمد التقدير على الطاقة المتبقية وطاقة العودة واحتياطي السلامة وتأثير الطقس وصحة البطارية واستهلاك الحمولة.",
+     "evidence": [
+         {"page": 13, "anchor": "لا تمثل مقدار الاحتياطي نفسه"},
+         {"page": 13, "anchor": "عتبة ثابتة"},
+         {"page": 13, "anchor": "الحمولة"},
+         {"page": 13, "anchor": "الطقس"},
+         {"page": 13, "anchor": "المسافة"},
+         {"page": 13, "anchor": "حالة البطارية"},
+         {"page": 13, "anchor": "Energy-Aware Mission Management"},
+         {"page": 14, "anchor": "Remaining Energy"},
+         {"page": 14, "anchor": "Return Energy"},
+         {"page": 14, "anchor": "Safety Reserve"},
+         {"page": 14, "anchor": "Weather Penalty"},
+         {"page": 14, "anchor": "Battery Health"},
+         {"page": 14, "anchor": "Payload Consumption"},
+     ]},
     {"id": "Q4", "question": "ما المقاييس التشغيلية التي يوصي التقرير بتسجيلها بجانب mAP ولماذا؟",
-     "answer": "يوصي بتسجيل False Alarms per Operational Hour إضافة إلى Inference Latency وFPS وWatt/Inference وThermal Throttling Rate لأن ارتفاع mAP وحده لا يكشف كثرة الإنذارات الكاذبة أو تكلفة وسرعة التشغيل على العتاد.",
-     "evidence": [{"page": 25, "anchors": ["False Alarms per Operational Hour", "Inference Latency", "Thermal Throttling Rate"]}]},
+     "answer": "يوصي التقرير بقياس الإنذارات الكاذبة ومعدل الإخفاق، وزمن الاستدلال ومعدل الإطارات واستهلاك الطاقة لكل استدلال ومعدل الاختناق الحراري؛ لأن mAP وحده لا يوضح الأداء التشغيلي وتكلفة تشغيل النموذج على العتاد.",
+     "evidence": [
+         {"page": 24, "anchor": "False Alerts/hour"},
+         {"page": 24, "anchor": "Miss Rate"},
+         {"page": 25, "anchor": "False Alarms per Operational Hour"},
+         {"page": 25, "anchor": "Inference Latency"},
+         {"page": 25, "anchor": "FPS"},
+         {"page": 25, "anchor": "Watt/Inference"},
+         {"page": 25, "anchor": "Thermal Throttling Rate"},
+     ]},
     {"id": "Q5", "question": "كيف يتعامل النظام مع تراجع أداء إصدار نموذج جديد وكيف يراقب تغير البيانات؟",
-     "answer": "يرصد Health Monitor تراجع الأداء ثم ينفذ Rollback إلى الإصدار السابق. ويراقب Data Drift من خلال Average confidence وUnknown detections وFalse alarms وScene distribution وImage quality ثم يطلب Model Review Required عند اكتشاف الانحراف.",
-     "evidence": [{"page": 26, "anchors": ["Health monitor detects degradation", "Rollback", "Model v1.4 restored"]},
-                  {"page": 27, "anchors": ["Average confidence", "Unknown detections", "Scene distribution", "Model Review Required"]}]},
+     "answer": "يرصد Health Monitor تراجع الأداء ثم ينفذ Rollback للإصدار السابق. ويراقب Data Drift من خلال متوسط الثقة والاكتشافات غير المعروفة والإنذارات الكاذبة وتوزيع المشاهد وجودة الصور، ثم يطلب مراجعة النموذج عند اكتشاف الانحراف.",
+     "evidence": [
+         {"page": 26, "anchor": "Health monitor detects degradation"},
+         {"page": 26, "anchor": "Rollback"},
+         {"page": 26, "anchor": "Model v1.4 restored"},
+         {"page": 27, "anchor": "Average confidence"},
+         {"page": 27, "anchor": "Unknown detections"},
+         {"page": 27, "anchor": "False alarms"},
+         {"page": 27, "anchor": "Scene distribution"},
+         {"page": 27, "anchor": "Image quality"},
+         {"page": 27, "anchor": "Model Review Required"},
+     ]},
     {"id": "Q6", "question": "ما الإجراءات المطلوبة لإدارة مفاتيح وحدات الأسطول وتأمين تحديثات البرامج؟",
-     "answer": "يجب تحديد مسؤولية إنشاء المفاتيح وتوزيعها وتخزينها وصلاحيات الوصول وتدويرها وإلغائها وإجراء فقدان الجهاز. والتحديث الآمن يمر بحزمة موقعة ثم التحقق من التوقيع والتوافق والتثبيت وفحص الصحة مع الرجوع للإصدار السابق عند الفشل.",
-     "evidence": [{"page": 32, "anchors": ["إنشاء المفاتيح وتوزيعها", "تدوير المفاتيح وإلغائها", "Signed Package", "Signature Verification", "Rollback"]}]},
+     "answer": "يجب تحديد مسؤولية إنشاء المفاتيح وتوزيعها وتخزينها وصلاحيات الوصول إليها وتدويرها وإلغائها وإجراء التعامل مع فقدان الجهاز. والتحديث الآمن يمر بحزمة موقعة والتحقق من التوقيع والتوافق والتثبيت وفحص الصحة والاعتماد، مع الرجوع للإصدار السابق عند الفشل.",
+     "evidence": [
+         {"page": 32, "anchor": "إنشاء المفاتيح وتوزيعها"},
+         {"page": 32, "anchor": "تخزين المفاتيح"},
+         {"page": 32, "anchor": "صلاحيات الوصول"},
+         {"page": 32, "anchor": "تدوير المفاتيح وإلغائها"},
+         {"page": 32, "anchor": "فقدان طائرة"},
+         {"page": 32, "anchor": "Certificate Revoked"},
+         {"page": 32, "anchor": "Signed Package"},
+         {"page": 32, "anchor": "Signature Verification"},
+         {"page": 32, "anchor": "Compatibility Check"},
+         {"page": 32, "anchor": "Install"},
+         {"page": 32, "anchor": "Health Check"},
+         {"page": 32, "anchor": "Commit"},
+         {"page": 32, "anchor": "Rollback"},
+     ]},
     {"id": "Q7", "question": "ما المبدأ الذي يجب أن يحكم تصرف الطائرة عند فقدان اتصال الشبكة؟",
-     "answer": "فقدان الشبكة لا يعني فقدان الطائرة ويجب أن تحتفظ كل طائرة بمنطق سلامة محلي وألا تنتظر أوامر الخادم عند انقطاع الاتصال.",
-     "evidence": [{"page": 44, "anchors": ["Loss of Network", "Loss of Aircraft", "Local Safety Logic", "فقدان الاتصال"]}]},
+     "answer": "فقدان الشبكة لا يعني فقدان الطائرة، ويجب أن تحتفظ كل طائرة بمنطق سلامة محلي وألا تنتظر أوامر الخادم عند انقطاع الاتصال.",
+     "evidence": [
+         {"page": 44, "anchor": "Loss of Network"},
+         {"page": 44, "anchor": "Loss of Aircraft"},
+         {"page": 44, "anchor": "Local Safety Logic"},
+         {"page": 44, "anchor": "فقدان الاتصال"},
+     ]},
     {"id": "Q8", "question": "ما التسليمات المطلوبة من فريق الذكاء الاصطناعي بخلاف ملف model.pt؟",
-     "answer": "تشمل Dataset specification وDataset version وLabel policy وTraining pipeline وEvaluation report وModel artifact وTensorRT artifact وBenchmark وInference service وEvent API وModel card وFailure cases وDrift monitor وRollback version.",
-     "evidence": [{"page": 49, "anchors": ["Dataset specification", "Dataset version", "Label policy", "Training pipeline", "Evaluation report"]},
-                  {"page": 49, "anchors": ["TensorRT artifact", "Benchmark", "Inference service", "Event API", "Model card", "Failure cases", "Drift monitor", "Rollback version"]}]},
+     "answer": "التسليمات الأربعة عشر هي Dataset specification وDataset version وLabel policy وTraining pipeline وEvaluation report وModel artifact وTensorRT artifact وBenchmark وInference service وEvent API وModel card وFailure cases وDrift monitor وRollback version.",
+     "evidence": [
+         {"page": 49, "anchor": "Dataset specification"},
+         {"page": 49, "anchor": "Dataset version"},
+         {"page": 49, "anchor": "Label policy"},
+         {"page": 49, "anchor": "Training pipeline"},
+         {"page": 49, "anchor": "Evaluation report"},
+         {"page": 49, "anchor": "Model artifact"},
+         {"page": 49, "anchor": "TensorRT artifact"},
+         {"page": 49, "anchor": "Benchmark"},
+         {"page": 49, "anchor": "Inference service"},
+         {"page": 49, "anchor": "Event API"},
+         {"page": 49, "anchor": "Model card"},
+         {"page": 49, "anchor": "Failure cases"},
+         {"page": 49, "anchor": "Drift monitor"},
+         {"page": 49, "anchor": "Rollback version"},
+     ]},
     {"id": "Q9", "question": "ما قيمة mAP التي حققها النموذج فعليًا في اختبار ميداني موثق على جهاز Jetson المستهدف؟",
-     "answer": "غير موجودة في المستند. يذكر التقرير مقاييس يجب قياسها ولا يقدم قيمة mAP موثقة من اختبار ميداني على الجهاز المستهدف.", "evidence": []},
+     "answer": "لا يقدم المستند قيمة mAP موثقة لاختبار ميداني على جهاز Jetson المستهدف. يذكر مقاييس مطلوبة ومعايير قبول، وليس نتيجة اختبار فعلية.",
+     "evidence": [], "absence_check": True},
     {"id": "Q10", "question": "كم رحلة اختبار ميداني مكتملة نُفذت فعليًا وما متوسط زمن الطيران المقاس بالدقائق؟",
-     "answer": "غير موجود في المستند. لا يقدم التقرير عدد رحلات مكتملة أو متوسط زمن طيران مقاسًا بالدقائق.", "evidence": []},
+     "answer": "لا يقدم المستند عدد رحلات اختبار ميداني مكتملة أو متوسط زمن طيران مقاسًا بالدقائق.",
+     "evidence": [], "absence_check": True},
 ]
 
 def norm(value):
@@ -324,50 +426,78 @@ def split_chunks(pages, cfg):
             start += step
     return chunks
 
+def validate_ground_truth(pages):
+    page_text = {p["page"]: norm(p["text"]) for p in pages}
+    missing = []
+    for q in QUESTIONS:
+        for item in q["evidence"]:
+            expected_page = item["page"]
+            anchor = item["anchor"]
+            if expected_page not in page_text or norm(anchor) not in page_text[expected_page]:
+                missing.append(f'{q["id"]}: page {expected_page}: {anchor}')
+    if missing:
+        details = "\n".join(f"  - {item}" for item in missing)
+        raise ValueError("Ground Truth anchors not found in their expected PDF pages:\n" + details)
+    total = sum(len(q["evidence"]) for q in QUESTIONS)
+    print(f"[GROUND TRUTH] Verified {total} anchors across {sum(bool(q['evidence']) for q in QUESTIONS)} answerable questions.")
+
 def index_chunks(collection, model, chunks):
     for start in range(0, len(chunks), 64):
         batch = chunks[start:start + 64]
-        vectors = [v.tolist() for v in model.embed(["passage: " + x["text"] for x in batch])]
+        vectors = [v.tolist() for v in model.embed([x["text"] for x in batch])]
         collection.upsert(ids=[x["id"] for x in batch],
                           documents=[x["text"] for x in batch],
                           metadatas=[x["meta"] for x in batch], embeddings=vectors)
 
 def retrieve(collection, model, q):
-    vector = next(model.embed(["query: " + q["question"]])).tolist()
+    vector = next(model.embed([q["question"]])).tolist()
     result = collection.query(query_embeddings=[vector], n_results=min(TOP_K, collection.count()),
                               include=["documents", "metadatas", "distances"])
     hits = []
     for rank, (cid, doc, meta, distance) in enumerate(
         zip(result["ids"][0], result["documents"][0], result["metadatas"][0], result["distances"][0]), 1):
         hits.append({"rank": rank, "id": cid, "doc": doc, "meta": meta, "distance": float(distance)})
-    metadata_ok = all(h["meta"].get("source_file") == SOURCE
-                      and isinstance(h["meta"].get("page_number"), int)
-                      and h["meta"]["page_number"] > 0 for h in hits)
+
+    metadata_ok = all(
+        h["meta"].get("source_file") == SOURCE
+        and isinstance(h["meta"].get("page_number"), int)
+        and h["meta"]["page_number"] > 0
+        for h in hits
+    )
+
     evidence = []
-    for group in q["evidence"]:
-        match = None
-        for hit in hits:
-            if hit["meta"].get("page_number") != group["page"]:
-                continue
-            doc = norm(hit["doc"])
-            anchor = next((a for a in group["anchors"] if norm(a) in doc), None)
-            if anchor:
-                match = {"page": group["page"], "rank": hit["rank"], "found": True}
-                break
-        evidence.append(match or {"page": group["page"], "rank": None, "found": False})
-    if not q["evidence"]:
-        status, coverage = "NOT_IN_SOURCE", None
+    for item in q["evidence"]:
+        expected = norm(item["anchor"])
+        match = next(
+            (hit for hit in hits
+             if hit["meta"].get("page_number") == item["page"]
+             and expected in norm(hit["doc"])),
+            None
+        )
+        evidence.append({
+            "anchor": item["anchor"],
+            "page": item["page"],
+            "found": match is not None,
+            "rank": match["rank"] if match else None,
+            "chunk_id": match["id"] if match else None,
+        })
+
+    if q.get("absence_check"):
+        status, coverage = "ABSENCE_CHECK", None
     else:
-        found = sum(x["found"] for x in evidence)
-        coverage = found / len(evidence)
+        found = sum(item["found"] for item in evidence)
+        coverage = found / len(evidence) if evidence else 0.0
         status = "YES" if found == len(evidence) else ("PARTIAL" if found else "NO")
+
     return {"hits": hits, "metadata_ok": metadata_ok, "evidence": evidence,
             "status": status, "coverage": coverage}
+
 
 def main():
     OUT.mkdir(exist_ok=True)
     DB.mkdir(parents=True, exist_ok=True)
     pages, page_count = load_pages()
+    validate_ground_truth(pages)
     print(f"[SOURCE] PDF pages={page_count} | text pages={len(pages)}")
     print(f"[MODEL] Loading {MODEL}; first run may download model files")
     model = TextEmbedding(model_name=MODEL)
@@ -383,35 +513,73 @@ def main():
         col = client.create_collection(name=cfg["name"], metadata={"hnsw:space": "cosine"})
         index_chunks(col, model, chunks)
         print(f"\n[CONFIG] {cfg['name']} size={cfg['size']} overlap={cfg['overlap']} chunks={col.count()}")
+
         complete = partial = failed = 0
-        coverages, first_ranks = [], []
+        total_expected = total_found = 0
+        question_coverages, first_ranks = [], []
+
         for q in QUESTIONS:
             r = retrieve(col, model, q)
             if q["evidence"]:
-                coverages.append(r["coverage"])
-                found_ranks = [x["rank"] for x in r["evidence"] if x["found"]]
-                complete += r["status"] == "YES"
-                partial += r["status"] == "PARTIAL"
-                failed += r["status"] == "NO"
+                expected_count = len(r["evidence"])
+                found_count = sum(item["found"] for item in r["evidence"])
+                total_expected += expected_count
+                total_found += found_count
+                question_coverages.append(r["coverage"])
+
+                if r["status"] == "YES":
+                    complete += 1
+                elif r["status"] == "PARTIAL":
+                    partial += 1
+                else:
+                    failed += 1
+
+                found_ranks = [item["rank"] for item in r["evidence"] if item["found"]]
                 if found_ranks:
                     first_ranks.append(min(found_ranks))
+
             top_pages = " > ".join(f"p.{h['meta'].get('page_number', '?')}" for h in r["hits"])
-            order = "; ".join(f"p.{x['page']}→#{x['rank']}" if x["found"] else f"p.{x['page']}→missing"
-                              for x in r["evidence"]) or "غير موجود في المصدر"
-            rows.append({"qid": q["id"], "question": q["question"], "config": cfg["name"],
-                         "size": cfg["size"], "overlap": cfg["overlap"],
-                         "expected": ", ".join(str(x["page"]) for x in q["evidence"]) or "ABSENT",
-                         "status": r["status"], "order": order, "top_pages": top_pages,
-                         "metadata": r["metadata_ok"], "hits": r["hits"]})
-            print(f"  {q['id']} [{r['status']}] expected={rows[-1]['expected']} | top3={top_pages} | metadata={'OK' if r['metadata_ok'] else 'ERROR'}")
-        stats[cfg["name"]] = {"complete": int(complete), "partial": int(partial), "failed": int(failed),
-                              "coverage": statistics.mean(coverages), "rank": statistics.mean(first_ranks) if first_ranks else 4,
-                              "chunks": col.count()}
+            if r["evidence"]:
+                order = "; ".join(
+                    f'{item["anchor"]}→#{item["rank"]}' if item["found"]
+                    else f'{item["anchor"]}→missing'
+                    for item in r["evidence"]
+                )
+            else:
+                order = "معلومة غير موثقة؛ مراجعة غيابها منفصلة"
+
+            expected = "; ".join(f'p.{item["page"]}: {item["anchor"]}' for item in q["evidence"])
+            if not expected:
+                expected = "ABSENCE_CHECK"
+
+            rows.append({
+                "qid": q["id"], "question": q["question"], "config": cfg["name"],
+                "size": cfg["size"], "overlap": cfg["overlap"],
+                "expected": expected, "status": r["status"], "order": order,
+                "top_pages": top_pages, "metadata": r["metadata_ok"],
+                "hits": r["hits"], "evidence": r["evidence"],
+            })
+            print(f"  {q['id']} [{r['status']}] | top3={top_pages or 'no hits'} | metadata={'OK' if r['metadata_ok'] else 'ERROR'}"
+                  + (f" | evidence={sum(x['found'] for x in r['evidence'])}/{len(r['evidence'])}"
+                     if r["evidence"] else ""))
+
+        overall_coverage = total_found / total_expected if total_expected else 0.0
+        stats[cfg["name"]] = {
+            "complete": int(complete), "partial": int(partial), "failed": int(failed),
+            "coverage": overall_coverage,
+            "mean_question_coverage": statistics.mean(question_coverages) if question_coverages else 0.0,
+            "rank": statistics.mean(first_ranks) if first_ranks else 4.0,
+            "evidence_found": total_found, "evidence_total": total_expected,
+            "chunks": col.count(),
+        }
         s = stats[cfg["name"]]
-        print(f"[SUMMARY] complete={s['complete']}/8 partial={s['partial']}/8 failed={s['failed']}/8 coverage={s['coverage']:.1%}")
+        print(f"[SUMMARY] complete={s['complete']}/8 partial={s['partial']}/8 failed={s['failed']}/8 "
+              f"evidence={s['evidence_found']}/{s['evidence_total']} "
+              f"coverage={s['coverage']:.1%} mean_question_coverage={s['mean_question_coverage']:.1%}")
 
     fields = ["question_id", "question", "configuration", "chunk_size_chars", "overlap_chars",
-              "expected_pages", "answer_in_top3", "evidence_rank_order", "top3_pages", "metadata_verified",
+              "expected_evidence", "answer_in_top3", "evidence_rank_order", "evidence_details",
+              "top3_pages", "metadata_verified",
               "top1_page", "top1_distance", "top1_source", "top1_chunk_id", "top1_preview",
               "top2_page", "top2_distance", "top2_source", "top2_chunk_id", "top2_preview",
               "top3_page", "top3_distance", "top3_source", "top3_chunk_id", "top3_preview"]
@@ -419,15 +587,23 @@ def main():
         writer = csv.DictWriter(f, fieldnames=fields)
         writer.writeheader()
         for row in rows:
-            out = {"question_id": row["qid"], "question": row["question"], "configuration": row["config"],
-                   "chunk_size_chars": row["size"], "overlap_chars": row["overlap"],
-                   "expected_pages": row["expected"], "answer_in_top3": row["status"],
-                   "evidence_rank_order": row["order"], "top3_pages": row["top_pages"],
-                   "metadata_verified": row["metadata"]}
+            details = " | ".join(
+                f'{item["anchor"]} [page={item["page"]}, found={item["found"]}, '
+                f'rank={item["rank"]}, chunk={item["chunk_id"]}]'
+                for item in row["evidence"]
+            ) or "ABSENCE_CHECK: source absence is assessed separately"
+            out = {
+                "question_id": row["qid"], "question": row["question"],
+                "configuration": row["config"], "chunk_size_chars": row["size"],
+                "overlap_chars": row["overlap"], "expected_evidence": row["expected"],
+                "answer_in_top3": row["status"], "evidence_rank_order": row["order"],
+                "evidence_details": details, "top3_pages": row["top_pages"],
+                "metadata_verified": row["metadata"],
+            }
             for i in range(1, 4):
                 h = row["hits"][i - 1] if len(row["hits"]) >= i else None
                 out[f"top{i}_page"] = h["meta"].get("page_number", "") if h else ""
-                out[f"top{i}_distance"] = f"{h['distance']:.6f}" if h else ""
+                out[f"top{i}_distance"] = f'{h["distance"]:.6f}' if h else ""
                 out[f"top{i}_source"] = h["meta"].get("source_file", "") if h else ""
                 out[f"top{i}_chunk_id"] = h["id"] if h else ""
                 out[f"top{i}_preview"] = re.sub(r"\s+", " ", h["doc"])[:220] if h else ""
@@ -435,29 +611,42 @@ def main():
 
     failures = [r for r in rows if r["status"] in {"NO", "PARTIAL"}]
     if failures:
-        worst = min(failures, key=lambda r: (r["status"] == "PARTIAL", -r["order"].count("missing")))
-        worst_text = (f"أسوأ حالة هي {worst['qid']} مع {worst['config']}؛ أعلى 3 نتائج أعادت {worst['top_pages']} "
-                      f"ولم تغطِّ كل الأدلة المطلوبة ({worst['order']}). راجعي مقتطفات CSV لتحديد هل السبب حدّ القطعة "
-                      "أو تشتت الدليل أو منافسة مقاطع أخرى.")
+        worst = min(failures, key=lambda r: (
+            sum(item["found"] for item in r["evidence"]) / len(r["evidence"]),
+            r["qid"]
+        ))
+        worst_text = (
+            f'أسوأ حالة في نتائج المقارنة: {worst["qid"]} مع {worst["config"]}؛ '
+            f'تغطية الأدلة {sum(x["found"] for x in worst["evidence"])}/{len(worst["evidence"])}. '
+            f'الأدلة وترتيبها: {worst["order"]}'
+        )
     else:
-        worst_text = "لم يظهر فشل كامل. راجعي حالات PARTIAL إن وجدت، وإلا قارني أقل تغطية وأبطأ ترتيب لأول دليل."
+        worst_text = "كل الأسئلة القابلة للإجابة اكتملت في كل الإعدادات."
 
-    winner_name, winner = max(stats.items(), key=lambda x: (x[1]["coverage"], x[1]["complete"], -x[1]["rank"]))
+    winner_name, winner = max(
+        stats.items(),
+        key=lambda x: (x[1]["coverage"], x[1]["complete"], -x[1]["rank"])
+    )
     meta_total = sum(len(r["hits"]) for r in rows)
-    meta_valid = sum(1 for r in rows for h in r["hits"]
-                     if h["meta"].get("source_file") == SOURCE
-                     and isinstance(h["meta"].get("page_number"), int) and h["meta"]["page_number"] > 0)
+    meta_valid = sum(
+        1 for r in rows for h in r["hits"]
+        if h["meta"].get("source_file") == SOURCE
+        and isinstance(h["meta"].get("page_number"), int)
+        and h["meta"]["page_number"] > 0
+    )
 
     print("\n=== FINAL VERIFICATION ===")
     print(f"Comparison rows: {len(rows)} / 30")
     print(f"Valid source metadata: {meta_valid}/{meta_total}")
     print(f"Best configuration: {winner_name} ({winner['coverage']:.1%} evidence coverage)")
+    print(f"Mean question coverage: {winner['mean_question_coverage']:.1%}")
+    print(f"Worst case: {worst_text}")
+    print("Q9/Q10: ABSENCE_CHECK — لا يتم اعتبار عدم الاسترجاع وحده إثباتًا لغياب المعلومة.")
     print(f"CSV: {CSV_FILE}")
-    print("[DONE] راجعي أسوأ حالة ومقتطفات النتائج قبل التسليم.")
+    print("[DONE] راجعي الأدلة ومقتطفات Top 3 قبل اعتماد الاستنتاج النهائي.")
 
 if __name__ == "__main__":
     main()
-
 ```
 
 ## 12. طريقة التشغيل
@@ -495,4 +684,4 @@ python W7D2_Chunking_Experiment.py
 - `results/W7D2_chunking_comparison.csv`: تفاصيل الأسئلة العشرة مع كل إعداد، ونتائج Top 3، وترتيب الدليل، والـ Metadata، ومقتطفات النصوص المسترجعة.
 - `chroma_db/w7d2_chunking/`: قاعدة بيانات Chroma المحلية الناتجة عن التجربة.
 
-**تنبيه توثيقي:** ملف Markdown ده هو ملف التسليم والشرح الوحيد الخاص بـ W7D2. ملف Python مش هيفضل ملفًا مستقلًا في جذر المستودع؛ الكود موجود داخل القسم المخصص له هنا. ملفات النتائج وقاعدة البيانات بتتولد محليًا وقت التنفيذ، ومش هاعتبر التجربة مكتملة أو أختار إعدادًا فائزًا قبل مراجعة النتائج الفعلية.
+**تنبيه توثيقي:** ملف Markdown ده هو ملف التسليم والشرح الوحيد الخاص بـ W7D2. ملف Python مش هيفضل ملفًا مستقلًا في جذر المستودع؛ الكود موجود داخل القسم المخصص له هنا. ملفات النتائج وقاعدة البيانات بتتولد محليًا وقت التنفيذ، ونتائج التنفيذ موثقة في القسمين 8 و9، ولا تعني ترشيح إعداد واحد على أنه الأفضل لكل أنواع المستندات.
