@@ -9,7 +9,8 @@ from pypdf import PdfReader
 from fastembed import TextEmbedding
 
 ROOT = Path(__file__).resolve().parent
-PDF = ROOT / "data" / "source_document.pdf"
+PROJECT_ROOT = ROOT.parent
+PDF = next((p for p in [PROJECT_ROOT / "data" / "source_document.pdf", ROOT / "data" / "source_document.pdf"] if p.exists()), PROJECT_ROOT / "data" / "source_document.pdf")
 RESULTS = ROOT / "results" / "W7D3_rag_results.json"
 SOURCE_NAME = "SGDS_SWARM_Engineering_Report_Civil_Edition(4) (1).pdf"
 EMBED_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
@@ -100,7 +101,7 @@ def make_chunks(pages):
 def get_collection(client, embedder):
     db_path = os.getenv("CHROMA_PATH")
     if not db_path:
-        candidates = [ROOT / "chroma_db", ROOT / "chroma_db" / "w7d2_chunking"]
+        candidates = [PROJECT_ROOT / "chroma_db", PROJECT_ROOT / "chroma_db" / "w7d2_chunking", ROOT / "chroma_db"]
         db_path = str(next((p for p in candidates if p.exists()), candidates[0]))
     client = chromadb.PersistentClient(path=db_path)
 
@@ -128,7 +129,7 @@ def get_collection(client, embedder):
     for offset in range(0, len(chunks), 64):
         batch = chunks[offset:offset + 64]
         vectors = [v.tolist() for v in embedder.embed(
-            ["passage: " + x["text"] for x in batch]
+            [x["text"] for x in batch]
         )]
         collection.upsert(
             ids=[x["id"] for x in batch],
@@ -140,7 +141,7 @@ def get_collection(client, embedder):
     return collection, client
 
 def retrieve(collection, embedder, question):
-    vector = next(embedder.embed(["query: " + question])).tolist()
+    vector = next(embedder.embed([question])).tolist()
     result = collection.query(
         query_embeddings=[vector],
         n_results=min(TOP_K, collection.count()),
