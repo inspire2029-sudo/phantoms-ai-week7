@@ -73,7 +73,7 @@ ollama serve
 
 ```bash
 ollama pull qwen2.5:3b
-python W7D3_RAG_Pipeline.py
+python W7D3/W7D3_RAG_Pipeline.py
 ```
 
 لو Ollama شغال بالفعل مش محتاجة تشغلي `ollama serve` مرة تانية.
