@@ -92,5 +92,5 @@ https://github.com/inspire2029-sudo/phantoms-ai-week7
 ## المصادر
 
 - Redis — RAG debugging guide: https://redis.io/blog/rag-debugging-guide-retrieval-errors/
-- Latitude — LLM failure modes and root-cause analysis: https://latitude.so/blog/llm-failure-modes-root-cause-analysis-guide
+- Latitude — LLM failure modes and root-cause analysis: https://latitude.so/blog/debug-rag-pipeline-wrong-answers
 - FastEmbed — Supported embedding models: https://qdrant.github.io/fastembed/examples/Supported_Models/
