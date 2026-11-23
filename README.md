@@ -25,7 +25,7 @@ This repository contains the Week 7 vector database, chunking benchmark, and gro
 
 ## Source document
 
-Use the same 53-page source report for all three days:
+Use the same 53-page source report for all four days:
 
 `SGDS_SWARM_Engineering_Report_Civil_Edition(4) (1).pdf`
 
@@ -49,12 +49,6 @@ The documented selected configuration is Large: 1600 characters with 250-charact
 - [W7D3 executable pipeline](W7D3/W7D3_RAG_Pipeline.py)
 
 W7D3 reuses the existing W7D2 Chroma collection. It does not silently rebuild a replacement database. The pipeline runs ten questions with RAG and Q1, Q9, and Q10 without RAG. It checkpoints JSON and CSV results after every question so interrupted runs can resume.
-
-### Day 4 — RAG debugging
-
-- [W7D4 debugging guide and fault-injection experiments](W7D4/README.md)
-- [W7D4 debugging runner](W7D4/W7D4_RAG_Debugging.py)
-- [Unmodified W7D3 baseline copy](W7D4/W7D3_RAG_Pipeline_BASELINE.py)
 
 ### Day 4 — RAG debugging
 
