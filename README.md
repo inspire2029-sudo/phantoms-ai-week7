@@ -56,6 +56,12 @@ W7D3 reuses the existing W7D2 Chroma collection. It does not silently rebuild a 
 - [W7D4 debugging runner](W7D4/W7D4_RAG_Debugging.py)
 - [Unmodified W7D3 baseline copy](W7D4/W7D3_RAG_Pipeline_BASELINE.py)
 
+### Day 4 — RAG debugging
+
+- [W7D4 debugging guide and fault-injection experiments](W7D4/README.md)
+- [W7D4 debugging runner](W7D4/W7D4_RAG_Debugging.py)
+- [Unmodified W7D3 baseline copy](W7D4/W7D3_RAG_Pipeline_BASELINE.py)
+
 ## Setup
 
 ```bash
