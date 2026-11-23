@@ -323,14 +323,16 @@ def main() -> int:
         print(f"[CHECKPOINT] Saved no-RAG result for {qid}.", flush=True)
 
     output["execution"]["finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
-    output["execution"]["completed_rag_questions"] = len(output["rag"])
-    output["execution"]["completed_no_rag_questions"] = len(output["without_rag"])
+    rag_success = sum(1 for item in output["rag"].values() if item.get("status") != "ERROR")
+    no_rag_success = sum(1 for item in output["without_rag"].values() if item.get("status") != "ERROR")
+    output["execution"]["completed_rag_questions"] = rag_success
+    output["execution"]["completed_no_rag_questions"] = no_rag_success
     save_json(output)
     save_csv(output)
 
     print("\n=== FINAL SUMMARY ===")
-    print(f"RAG results: {len(output['rag'])}/10")
-    print(f"No-RAG results: {len(output['without_rag'])}/3")
+    print(f"RAG successful results: {rag_success}/10")
+    print(f"No-RAG successful results: {no_rag_success}/3")
     print(f"Errors: {len(output['execution']['errors'])}")
     print(f"JSON: {JSON_FILE}")
     print(f"CSV: {CSV_FILE}")
