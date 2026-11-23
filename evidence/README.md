@@ -1,6 +1,6 @@
 # Evidence
 
-This directory contains screenshots documenting the local W7D3 execution environment and results.
+This directory is reserved for screenshots documenting the local W7D3 execution environment and results.
 
 Recommended evidence:
 
