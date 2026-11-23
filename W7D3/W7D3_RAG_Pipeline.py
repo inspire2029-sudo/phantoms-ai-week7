@@ -147,6 +147,12 @@ def connect_to_d2_collection():
     missing = required - set(metadata)
     if missing:
         raise RuntimeError(f"W7D2 collection metadata is missing required keys: {sorted(missing)}")
+    if metadata.get("source_file") != SOURCE_NAME:
+        raise RuntimeError(
+            f"Collection source mismatch: expected '{SOURCE_NAME}', found '{metadata.get('source_file')}'."
+        )
+    if not isinstance(metadata.get("page_number"), int) or metadata["page_number"] < 1:
+        raise RuntimeError(f"Invalid page_number in W7D2 metadata: {metadata.get('page_number')!r}")
     print(f"[DB] Reusing W7D2 collection '{COLLECTION_NAME}'")
     print(f"[DB] Path: {DB_PATH}")
     print(f"[DB] Chunks: {count}")
