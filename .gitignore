@@ -8,3 +8,6 @@ results/
 data/*.pdf
 *.log
 .DS_Store
+
+# W7D4 generated experimental indexes
+W7D4/indexes/
