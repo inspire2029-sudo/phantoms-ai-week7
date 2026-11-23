@@ -267,8 +267,12 @@ def main() -> int:
 
     print("[3/4] Running 10 questions with RAG...")
     for index, (qid, question) in enumerate(QUESTIONS, 1):
-        if qid in output["rag"]:
+        if qid in output["rag"] and output["rag"][qid].get("status") != "ERROR":
             continue
+        output["execution"]["errors"] = [
+            item for item in output["execution"]["errors"]
+            if not (item.get("mode") == "rag" and item.get("question_id") == qid)
+        ]
         print(f"\n[{index}/10] {qid}: {question}", flush=True)
         try:
             result = run_rag(collection, embedder, qid, question)
@@ -291,8 +295,14 @@ def main() -> int:
 
     print("\n[4/4] Running without RAG for Q1, Q9, and Q10...")
     for qid, question in QUESTIONS:
-        if qid not in NO_RAG_IDS or qid in output["without_rag"]:
+        if qid not in NO_RAG_IDS:
             continue
+        if qid in output["without_rag"] and output["without_rag"][qid].get("status") != "ERROR":
+            continue
+        output["execution"]["errors"] = [
+            item for item in output["execution"]["errors"]
+            if not (item.get("mode") == "without_rag" and item.get("question_id") == qid)
+        ]
         print(f"\n{qid} WITHOUT RAG: {question}", flush=True)
         try:
             answer = run_without_rag(question)
