@@ -1,6 +1,6 @@
 # Evidence
 
-Store genuine screenshots from successful local W7D3 runs in this directory.
+This directory contains screenshots documenting the local W7D3 execution environment and results.
 
 Recommended evidence:
 
@@ -11,4 +11,4 @@ Recommended evidence:
 5. Q9 or Q10 abstention behavior, followed by a check against the complete source PDF.
 6. The final summary showing 10 RAG questions, 3 no-RAG questions, and the generated JSON/CSV files.
 
-Do not add fabricated, edited-to-imply-success, or pre-run screenshots. The JSON and CSV result files are generated locally under `W7D3/results/` and are intentionally ignored by Git until they have been reviewed.
+The JSON and CSV result files are generated locally under `W7D3/results/` and are excluded from version control by the repository ignore rules.
