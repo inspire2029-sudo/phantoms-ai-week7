@@ -231,22 +231,37 @@ def main() -> int:
     print("[2/4] Connecting to the existing W7D2 Chroma collection...")
     collection, _client = connect_to_d2_collection()
 
-    output: dict[str, Any] = {
-        "settings": {
-            "source_pdf": str(PDF.relative_to(PROJECT_ROOT)),
-            "source_pages": pdf_pages,
-            "database_path": str(DB_PATH),
-            "collection": COLLECTION_NAME,
-            "collection_count": collection.count(),
-            "embedding_model": EMBED_MODEL,
-            "llm": OLLAMA_MODEL,
-            "top_k": TOP_K,
-            "ollama_timeout_seconds": REQUEST_TIMEOUT,
-        },
-        "rag": {},
-        "without_rag": {},
-        "execution": {"started_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "errors": []},
+    current_settings = {
+        "source_pdf": str(PDF.relative_to(PROJECT_ROOT)),
+        "source_pages": pdf_pages,
+        "database_path": str(DB_PATH),
+        "collection": COLLECTION_NAME,
+        "collection_count": collection.count(),
+        "embedding_model": EMBED_MODEL,
+        "llm": OLLAMA_MODEL,
+        "top_k": TOP_K,
+        "ollama_timeout_seconds": REQUEST_TIMEOUT,
     }
+    if JSON_FILE.exists():
+        try:
+            previous = json.loads(JSON_FILE.read_text(encoding="utf-8"))
+            previous_settings = previous.get("settings", {})
+            if all(previous_settings.get(key) == value for key, value in current_settings.items()):
+                output = previous
+                output.setdefault("rag", {})
+                output.setdefault("without_rag", {})
+                output.setdefault("execution", {}).setdefault("errors", [])
+                print("[RESUME] Continuing from previously saved question results.")
+            else:
+                print("[RESUME] Previous results use different settings; starting a fresh run.")
+                output = {"rag": {}, "without_rag": {}, "execution": {"errors": []}}
+        except (OSError, json.JSONDecodeError):
+            print("[RESUME] Previous result file could not be read; starting a fresh run.")
+            output = {"rag": {}, "without_rag": {}, "execution": {"errors": []}}
+    else:
+        output = {"rag": {}, "without_rag": {}, "execution": {"errors": []}}
+    output["settings"] = current_settings
+    output["execution"].setdefault("started_at", time.strftime("%Y-%m-%dT%H:%M:%S%z"))
     save_json(output)
     save_csv(output)
 
