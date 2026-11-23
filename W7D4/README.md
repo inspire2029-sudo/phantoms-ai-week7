@@ -29,9 +29,10 @@ ollama list
 
 ## تشغيل التجارب
 
-كل أمر يشغّل الأسئلة العشرة نفسها ويحفظ JSON وCSV بعد كل سؤال. شغّل كل أمر منفصلًا وصوّر مخرجاته في الطرفية:
+ابدئي بتشغيل الحالة السليمة كمرجع للمقارنة، وبعدها شغّلي كل كسر منفصلًا. كل أمر يشغّل الأسئلة العشرة نفسها ويحفظ JSON وCSV بعد كل سؤال:
 
 ~~~bash
+python W7D4/W7D4_RAG_Debugging.py --fault baseline 2>&1 | tee W7D4_baseline.log
 python W7D4/W7D4_RAG_Debugging.py --fault embedding 2>&1 | tee W7D4_embedding.log
 python W7D4/W7D4_RAG_Debugging.py --fault chunk-small 2>&1 | tee W7D4_chunk-small.log
 python W7D4/W7D4_RAG_Debugging.py --fault topk-1 2>&1 | tee W7D4_topk-1.log
@@ -77,7 +78,7 @@ GENERATED_REQUIRES_REVIEW معناها أن النموذج ولّد إجابة �
 
 ## لقطات التيرمنال
 
-1. فحص صياغة الملفين وظهور قاعدة W7D2 وعدد المقاطع.
+1. فحص صياغة الملفين وتشغيل الحالة المرجعية السليمة وظهور قاعدة W7D2 وعدد المقاطع.
 2. تجربة Embedding mismatch مع ظهور نموذج السؤال المختلف ونصوص النتائج.
 3. تجربة Chunk size مع ظهور إعادة الفهرسة وعدد المقاطع الجديدة.
 4. تجربة Top-k = 1 ثم Top-k الكبير وعدد النتائج المعادة.
