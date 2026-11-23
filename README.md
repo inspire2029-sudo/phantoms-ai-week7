@@ -60,6 +60,6 @@ For Fedora, follow the detailed Ollama and execution instructions in [W7D3/READM
 
 - Keep the original PDF at `data/source_document.pdf` locally.
 - ChromaDB files and run outputs are generated locally and ignored by Git.
-- Save genuine terminal screenshots in `evidence/` only after the corresponding commands succeed.
+- The `evidence/` directory is reserved for terminal screenshots documenting successful command execution.
 
 See each day’s document for methodology, configuration, evaluation criteria, and known limitations.
