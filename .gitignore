@@ -3,4 +3,8 @@ __pycache__/
 .venv/
 venv/
 chroma_db/
+W7D3/results/
+results/
+data/*.pdf
+*.log
 .DS_Store
