@@ -11,6 +11,10 @@ This repository contains the Week 7 vector database, chunking benchmark, and gro
 ├── W7D3/
 │   ├── README.md
 │   └── W7D3_RAG_Pipeline.py
+├── W7D4/
+│   ├── README.md
+│   ├── W7D3_RAG_Pipeline_BASELINE.py
+│   └── W7D4_RAG_Debugging.py
 ├── data/
 │   └── README.md
 ├── evidence/
@@ -46,6 +50,12 @@ The documented selected configuration is Large: 1600 characters with 250-charact
 
 W7D3 reuses the existing W7D2 Chroma collection. It does not silently rebuild a replacement database. The pipeline runs ten questions with RAG and Q1, Q9, and Q10 without RAG. It checkpoints JSON and CSV results after every question so interrupted runs can resume.
 
+### Day 4 — RAG debugging
+
+- [W7D4 debugging guide and fault-injection experiments](W7D4/README.md)
+- [W7D4 debugging runner](W7D4/W7D4_RAG_Debugging.py)
+- [Unmodified W7D3 baseline copy](W7D4/W7D3_RAG_Pipeline_BASELINE.py)
+
 ## Setup
 
 ```bash
@@ -60,6 +70,6 @@ For Fedora, follow the detailed Ollama and execution instructions in [W7D3/READM
 
 - Keep the original PDF at `data/source_document.pdf` locally.
 - ChromaDB files and run outputs are generated locally and ignored by Git.
-- The `evidence/` directory is reserved for terminal screenshots documenting successful command execution.
+- The `evidence/` directory is reserved for terminal screenshots documenting successful command execution. W7D4 logs and experimental indexes are generated locally and excluded from Git.
 
 See each day’s document for methodology, configuration, evaluation criteria, and known limitations.
