@@ -106,7 +106,7 @@ def broken_metadata_index(base):
             if "source_file" in m: m["filename"]=m.pop("source_file")
             if "page_number" in m: m["page"]=m.pop("page_number")
             metas.append(m)
-        target.add(ids=b["ids"],documents=b["documents"],metadatas=metas,embeddings=b["embeddings"])
+        target.add(ids=b["ids"],documents=b["documents"],metadatas=metas,embeddings=[v.tolist() if hasattr(v,"tolist") else v for v in b["embeddings"]])
     print(f"[METADATA FAULT] cloned={target.count()} sample={target.get(limit=1,include=['metadatas'])['metadatas']}")
     return target
 
